@@ -1,58 +1,70 @@
-class FiniteStateMachine:
-    def __init__(self):
-        # Liste des états accessibles
+class State:
+    def __init__(self, name, label):
+        self.name =name
+        self.label=label
+
+class Transition:
+    def __init__(self, state, nextNode):
+        self.state= state
+        self.nextNode= nextNode
+
+class StateTransition:
+    def __init__(self, initial_state):
+        # Set of accessible states
         self.R = set()
-        # Pile des états
+        # Stack of states
         self.U = []
-        # Boolean pour vérifier la validité de la proposition logique
+        # Boolean value, initialized to True
         self.b = True
+        # Initial State
+        self.init_state = State.init_state
 
-    # Fonction pour obtenir les post-états d'un état donné
-    def post(self, state):
-        # Ici, il faudra définir comment on obtient les post-états.
-        # Je mets un exemple simple en supposant une fonction fictive.
-        # Cette fonction doit être définie en fonction de ton système de transition fini ST.
-        return fictive_function_for_post_state(state)
+    def Post(self, s):
+        # This function should return all possible transitions from state s
+        # For now, let's assume an empty set; you'll need to fill in the logic.
+        return set()
 
-    # Fonction pour vérifier une proposition logique sur un état donné
-    def check_phi(self, state):
-        # Encore une fois, il faut définir comment vérifier la proposition.
-        # Je suppose une fonction fictive pour l'instant.
-        return fictive_function_to_check_phi(state)
-
+    def check_property(self, s):
+        # This function checks if state s satisfies the property Φ
+        # You'll need to define this based on your application.
+        return False
+    
     def visiter(self, s):
         self.U.append(s)
         self.R.add(s)
-
-        while self.U:
-            s_prime = self.U[-1]  # Prendre le dernier élément de la pile
-
-            if self.check_phi(s_prime):
+        
+        while self.U and self.b:
+            s_prime = self.U[-1]
+            
+            if s_prime in self.R:
                 self.U.pop()
+                self.b = self.b and self.check_property(s_prime)
             else:
-                s_double_prime = next((state for state in self.post(s_prime) if state not in self.R), None)
+                s_double_prime = None  # Choose a state from Post(s') that is not in R
+                for state in self.Post(s_prime):
+                    if state not in self.R:
+                        s_double_prime = state
+                        break
+
                 if s_double_prime:
                     self.U.append(s_double_prime)
                     self.R.add(s_double_prime)
                 else:
-                    self.b = False
+                    self.U.pop()
+
+    def verification_invariant(self, ST, prop_logic, init_state):
+        # Assuming ST is the finite transition system and prop_logic is the logical proposition Φ
+        while not self.b and ST:  # Assuming ST is an iterable, modify as necessary
+            s = init_state  # Select the initial state
+            for state in ST:
+                if state not in self.R:
+                    s = state
                     break
+            if s:
+                self.visiter(s)
 
-    def verification_dinvariant(self, ST, phi):
-        # ST est le système de transition fini
-        # phi est la proposition logique
+        if self.b:
+            return "OUI"
+        else:
+            return "NON", self.U
 
-        # Ici, on devrait avoir une manière de choisir un état initial dans ST qui n'est pas dans R.
-        # Je suppose une fonction fictive pour cela.
-        s = fictive_function_to_choose_initial_state(ST, self.R)
-
-        while s and self.b:
-            self.visiter(s)
-            s = fictive_function_to_choose_initial_state(ST, self.R)
-
-        return "OUI" if self.b else "NON"
-
-# Exemple d'utilisation :
-fsm = FiniteStateMachine()
-result = fsm.verification_dinvariant(my_ST, my_phi)
-print(result)
