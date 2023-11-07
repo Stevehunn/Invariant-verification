@@ -44,9 +44,9 @@ def verif_invariant(ST):
     # Stack of states
     U = []
     # Boolean value, initialized to True
-    verif = [True]
+    verif = True
 
-    while verif[0] and ST.I not in R:
+    while verif and ST.I not in R:
         s = ST.I  # On choisit arbitrairement un état initial
         if s not in R:
             visiter(R,U,verif,s,ST)
@@ -60,7 +60,7 @@ def visiter(R,U,verif,s,ST):
         U.append(s) # on ajoute s à la pile 
         R.append(s) # on marque s comme accessible
         print("dans visiter")
-        while U and verif[0]:
+        while U != 0 and verif:
             s_prime = U[-1] # s' devient le premier element de la pile
             print("dans le while")
             if s_prime in R: # si s' est dans R alors
