@@ -1,178 +1,122 @@
-from Property import Or,Not,Property,Unary,And
+from typing import Callable
+
+
+class Condition:
+    def __init__(self, function_condition: Callable, function_transition: Callable):
+        self.inner_callable = function_condition
+        self.transition_callable = function_transition
+
+    def check(self, context) -> bool:
+        return self.inner_callable(context)
+
+    def apply_transition(self, context):
+        self.transition_callable(context)
+
+class Context:
+    def __init__(self, y: int):
+        self.y = y
 
 class State:
-    def __init__(self, name, label):
-        self.name = name
-        self.label = label
-    
-    def get_name(self):
-        return self.name
-    
-    def get_label(self):
-        return self.label
+    def __init__(self, t1: str, t2: str):
+        self.next_states: set[(State, Condition)] = set()
+        self.inner_state_info: tuple[str, str] = (t1, t2)
 
-class Transition:
-    def __init__(self, state, nextNode=None):
-        self.state = state
-        self.nextNode = nextNode
+    def __eq__(self, other) -> bool:
+        if isinstance(other, State):
+            return self.inner_state_info[0] == other.inner_state_info[0] and self.inner_state_info[1] == other.inner_state_info[1] and self.inner_state_info[2] == other.inner_state_info[2]
+        return False
 
-class TransitionList:
+    def post(self, context: Context):
+        for next_state, condition in self.next_states:
+            if condition.check(context):
+                yield next_state
+
+class Stack:
     def __init__(self):
-        self.head = None
+        self.inner_stack = list()
 
-    def add_node(self, state):
-        if not self.head:
-            self.head = Transition(state)
+    def push(self, elm):
+        self.inner_stack.append(elm)
+
+    def is_empty(self) -> bool:
+        return len(self.inner_stack) == 0
+
+    def top(self) -> State:
+        return self.inner_stack[-1]
+
+    def pop(self) -> State:
+        return self.inner_stack.pop()
+
+def phi(s: State) -> bool:
+    return True # TODO
+
+def visiter(s: State, stack_u: Stack, set_r: set[State], bool_b: bool, context: Context):
+    stack_u.push(s)
+    set_r.add(s)
+    while not stack_u.is_empty() or not bool_b:
+        s_prime = stack_u.top()
+        if next(s_prime.post(context)) in set_r:
+            stack_u.pop()
+            bool_b = bool_b and phi(s_prime)
         else:
-            new_node = Transition(state, self.head)
-            self.head = new_node
+            s_prime_2 = next(s_prime.post(context))  # state.post() return generator, next() to get next value of generator
+            while s_prime_2 in set_r:
+                s_prime_2 = next(s_prime.post(context)) # state.post() return generator, next() to get next value of generator
+                stack_u.push(s_prime_2)
+                set_r.add(s_prime_2)
+    return set_r, bool_b
 
-    def __iter__(self):
-        node = self.head
-        while node is not None:
-            yield node
-            node = node.nextNode
-
-
-class StateTransition:
-    def __init__(self, s, act, transition, I, prop):
-        # Sommet
-        self.s = s
-        # Action
-        self.act = act
-        # Transition
-        self.transition = transition
-        # Initial State
-        self.I = I
-        # Prop
-        self.prop = prop
-
-    def verification_invariant(self):
-        # Set of accessible states
-        self.R = set()
-        # Stack of states
-        self.U = []
-        # Boolean value, initialized to True
-        self.b = True
-
-        # Assuming ST is the finite transition system and prop_logic is the logical proposition Φ
-        ST = self  # Assuming ST refers to the current instance of StateTransition
-        while self.b and ST.I not in self.R:
-            s = ST.I  # On choisit arbitrairement un état initial
-            if s not in self.R:
-                self.visiter(s)
-
-        if self.b:
-            return "OUI"
-        else:
-            return "NON", self.U
-
-    def visiter(self, s):
-        self.U.append(s)
-        self.R.add(s)
-        print("dans visiter")
-        while self.U and self.b:
-            s_prime = self.U[-1]
-            self.U.insert(0,s_prime)
-            print("dans le while")
-            if s_prime in self.R:
-                print("if")
-                self.U.pop()
-                self.b = self.b and self.check_property(s_prime)
-            else:
-                print("else")
-                s_double_prime = None  # Choose a state from Post(s') that is not in R
-                # Assuming Post is a function that needs to be defined
-                for state in self.Post(s_prime):
-                    if state not in self.R:
-                        s_double_prime = state
-                        print("break")
-                        break
-
-                if s_double_prime:
-                    self.U.append(s_double_prime)
-                    self.R.add(s_double_prime)
-                    print("if double prime")
-                else:
-                    print("else pop")
-                    self.U.pop()
-
-    def check_property(self, s_prime):
-        print("check_property")
-        if(self.prop != s_prime):
-            return True
-        else:return False
-
-    def Post(self,ST,s,R):
-        print("post")
-        post = ST.Transition[s.name]
-        while post is not None:
-            if post.state in R:
-                post =post.nextNode
-    
-
-def exemple1():
-    State1 = State(1,{"n1","n2"})
-    State2 = State(2,{"p1","n2"})
-    State3 = State(3,{"n1","p2"})
-    State4 = State(4,{"p1","p2"})
-    State5 = State(5,{"c1","n2"})
-    State6 = State(6,{"n1","c2"})
-    State7 = State(7,{"c1","p2"})
-    State8 = State(8,{"p1","c2"})
-
-    States = {State1,State2,State3,State4,State5,State6,State7,State8}
-
-    Act =["epsilon"]
-
-    noeud1 =TransitionList()
-    noeud1.add_node(State2)
-    noeud1.add_node(State3)
-
-    noeud2 =TransitionList()
-    noeud2.add_node(State4)
-    noeud2.add_node(State5)
-
-    noeud3 =TransitionList()
-    noeud3.add_node(State4)
-    noeud3.add_node(State6)
-
-    noeud4=TransitionList()
-    noeud4.add_node(State7)
-    noeud4.add_node(State8)
-
-    noeud5=TransitionList()
-    noeud5.add_node(State7)
-    noeud5.add_node(State1)
-
-    noeud6=TransitionList()
-    noeud6.add_node(State8)
-    noeud6.add_node(State1)
-
-
-    noeud7=TransitionList()
-    noeud7.add_node(State3)
-
-    noeud8=TransitionList()
-    noeud8.add_node(State2)
-
-
-    Transitions=[noeud1,noeud2,noeud3,noeud4,noeud5,noeud6,noeud7,noeud8]
-
-    Prop ={"n1","n2","p1","p2","c1","c2"}
-    I ={State1}
-
-    Phi = Or(Not(Unary({"c1"})),Not(Unary({"c2"})))
-
-    calcul_inv = StateTransition(8,Act,Transitions,State1,Phi)
-    result = StateTransition.verification_invariant(calcul_inv)
-    print(result)
-
-
-
+def algo_1(set_states: set[State], context: Context):
+    b: bool = True
+    R: set[State] = set()
+    U: Stack = Stack()
+    I: State | None = None  # TODO
+    s: State = I
+    while I not in R and b:
+        s: State = I
+        R, b = visiter(s, U, R, b, context)
+    if b:
+        print("OUI")
+    else:
+        print("NON", U)
 
 def main():
-    exemple1()
+    # Conditions
+    def no_condition(context: Context) -> bool:
+        return True
+
+    def not_negative(context: Context) -> bool:
+        return context.y > 0
+
+    # Actions
+    def plus_one(context: Context):
+        context.y += 1
+
+    def minus_one(context: Context):
+        context.y -= 1
+
+    def do_nothing(context: Context):
+        pass
+
+    # Etats
+    State1 = State("n1", "n2")
+    State2 = State("p1", "n2")
+    State3 = State("n1", "p2")
+    State4 = State("p1", "p2")
+    State5 = State("c1", "n2")
+    State6 = State("n1", "c2")
+    State7 = State("c1", "p2")
+    State8 = State("p1", "c2")
+    set_states = {State1, State2, State3, State4, State5, State6, State7, State8}
+    no_condition_do_nothing = Condition(no_condition, do_nothing)
+
+    State1.next_states.add((State2, no_condition_do_nothing))
+    State1.next_states.add((State3, no_condition_do_nothing))
+
+    # Contexte
+    actual_context = Context(1)
+    algo_1(set_states, actual_context)
 
 
-main()
+if __name__ == "__main__":
+    main()
