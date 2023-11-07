@@ -60,13 +60,13 @@ def visiter(R,U,verif,s,ST):
         U.append(s) # on ajoute s à la pile 
         R.append(s) # on marque s comme accessible
         print("dans visiter")
-        while U and verif:
+        while U and verif[0]:
             s_prime = U[-1] # s' devient le premier element de la pile
             print("dans le while")
             if s_prime in R: # si s' est dans R alors
                 print("if")
                 U.pop() # on enlève le premier élément de la pile
-                verif = verif and check_property(self.s_prime) # on teste si la condition phi est toujours valide dans s'
+                verif = verif and check_property(s_prime) # on teste si la condition phi est toujours valide dans s'
             else:
                 print("else")
                 s_double_prime = None  # on initialise
