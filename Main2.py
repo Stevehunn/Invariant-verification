@@ -24,7 +24,6 @@ class TransitionList:
         self.transitions[state_from.get_name()].append(state_to)
 
     def display_transitions(self):
-        
         # Affiche les transitions
         for state_from, states_to in self.transitions.items():
             print(f"State {state_from}:")
