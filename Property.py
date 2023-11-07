@@ -38,8 +38,8 @@ class Unary(Property):
     
     def eval(labels):
         for l in labels:
-            if label == term
-            return true
+            if label==term:
+                return True
         
         return false
 
