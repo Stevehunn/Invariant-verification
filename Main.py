@@ -4,6 +4,12 @@ class State:
     def __init__(self, name, label):
         self.name = name
         self.label = label
+    
+    def get_name(self):
+        return self.name
+    
+    def get_label(self):
+        return self.label
 
 class Transition:
     def __init__(self, state, nextNode=None):
@@ -64,33 +70,43 @@ class StateTransition:
     def visiter(self, s):
         self.U.append(s)
         self.R.add(s)
-
+        print("dans visiter")
         while self.U and self.b:
             s_prime = self.U[-1]
-
+            self.U.insert(0,s_prime)
+            print("dans le while")
             if s_prime in self.R:
                 self.U.pop()
+                content_pile = self.U 
+                print(content_pile)
                 self.b = self.b and self.check_property(s_prime)
+                print("if")
             else:
+                print("else")
                 s_double_prime = None  # Choose a state from Post(s') that is not in R
                 # Assuming Post is a function that needs to be defined
                 for state in self.Post(s_prime):
                     if state not in self.R:
                         s_double_prime = state
+                        print("break")
                         break
 
                 if s_double_prime:
                     self.U.append(s_double_prime)
                     self.R.add(s_double_prime)
+                    print("if double prime")
                 else:
+                    print("else pop")
                     self.U.pop()
 
-    def check_property(self, state):
-        # Placeholder for property checking logic
-        # Needs to be implemented
-        return True
+    def check_property(self, s_prime):
+        print("check_property")
+        if(self.prop != s_prime):
+            return True
+        else:return False
 
     def Post(self, s_prime, ST,s,R):
+        print("post")
         post = ST.Transition[s.name]
 
         # Placeholder for post function logic
