@@ -44,11 +44,9 @@ def verif_invariant(ST):
     # Stack of states
     U = []
     # Boolean value, initialized to True
-    verif = True
+    verif = [True]
 
-    
-
-    while verif and ST:
+    while verif[0] and ST.I not in R:
         s = ST.I  # On choisit arbitrairement un état initial
         if s not in R:
             visiter(R,U,verif,s,ST)
@@ -59,22 +57,20 @@ def verif_invariant(ST):
         return "NON", print(U)
     
 def visiter(R,U,verif,s,ST):
-        U.append(s)
-        R.append(s)
+        U.append(s) # on ajoute s à la pile 
+        R.append(s) # on marque s comme accessible
         print("dans visiter")
         while U and verif:
-            s_prime = U[-1]
-            U.insert(0,s_prime)
+            s_prime = U[-1] # s' devient le premier element de la pile
             print("dans le while")
-            if s_prime in R:
+            if s_prime in R: # si s' est dans R alors
                 print("if")
-                U.pop()
-                verif = verif and check_property(s_prime)
+                U.pop() # on enlève le premier élément de la pile
+                verif = verif and check_property(self.s_prime) # on teste si la condition phi est toujours valide dans s'
             else:
                 print("else")
-                s_double_prime = None  # Choose a state from Post(s') that is not in R
-                # Assuming Post is a function that needs to be defined
-                for state in Post(s_prime):
+                s_double_prime = None  # on initialise
+                for state in Post(s_prime): # Choose a state from Post(s') that is not in R
                     if state not in R:
                         s_double_prime = state
                         print("break")
