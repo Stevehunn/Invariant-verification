@@ -23,8 +23,8 @@ class Or(Property):
     term2: Property
 
     def __init__(self, term1, term2):
-        self.term1
-        self.term2
+        self.term1 =term1
+        self.term2 =term2
     
     def eval(labels):
         return self.term1.eval(labels) or self.term2.eval(labels)
@@ -49,8 +49,8 @@ class And(Property):
     term2: Property
 
     def __init__(self, term1, term2):
-        self.term1
-        self.term2
+        self.term1 =term1
+        self.term2 =term2
     
     def eval(labels):
         return self.term1.eval(labels) and self.term2.eval(labels)
