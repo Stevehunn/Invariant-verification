@@ -40,53 +40,53 @@ class TransitionSystem():
 
 def verif_invariant(ST):
     # Set of accessible states
-    R = set()
+    R = []
     # Stack of states
     U = []
     # Boolean value, initialized to True
     verif = True
 
+    
+
     while verif and ST:
         s = ST.I  # On choisit arbitrairement un état initial
         if s not in R:
-            visiter(s)
+            visiter(R,U,verif,s,ST)
 
     if verif:
         return "OUI"
     else:
-        return "NON", self.U
+        return "NON", print(U)
     
-def visiter(self, s):
-        self.U.append(s)
-        self.R.add(s)
+def visiter(R,U,verif,s,ST):
+        U.append(s)
+        R.append(s)
         print("dans visiter")
-        while self.U and self.b:
-            s_prime = self.U[-1]
-            self.U.insert(0,s_prime)
+        while U and verif:
+            s_prime = U[-1]
+            U.insert(0,s_prime)
             print("dans le while")
-            if s_prime in self.R:
-                self.U.pop()
-                content_pile = self.U 
-                print(content_pile)
-                self.b = self.b and self.check_property(s_prime)
+            if s_prime in R:
                 print("if")
+                U.pop()
+                verif = verif and check_property(s_prime)
             else:
                 print("else")
                 s_double_prime = None  # Choose a state from Post(s') that is not in R
                 # Assuming Post is a function that needs to be defined
-                for state in self.Post(s_prime):
-                    if state not in self.R:
+                for state in Post(s_prime):
+                    if state not in R:
                         s_double_prime = state
                         print("break")
                         break
 
                 if s_double_prime:
-                    self.U.append(s_double_prime)
-                    self.R.add(s_double_prime)
                     print("if double prime")
+                    U.append(s_double_prime)
+                    R.append(s_double_prime)
                 else:
-                    print("else pop")
-                    self.U.pop()
+                    print("else double_prime")
+                    U.pop()
 
 def check_property(self, s_prime):
         print("check_property")
