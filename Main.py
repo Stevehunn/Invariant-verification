@@ -35,7 +35,7 @@ class TransitionList:
 
 
 class StateTransition:
-    def __init__(self, s, act, transition, initial_state, prop):
+    def __init__(self, s, act, transition, I, prop):
         # Sommet
         self.s = s
         # Action
@@ -43,7 +43,7 @@ class StateTransition:
         # Transition
         self.transition = transition
         # Initial State
-        self.init_state = initial_state
+        self.I = I
         # Prop
         self.prop = prop
 
@@ -57,8 +57,8 @@ class StateTransition:
 
         # Assuming ST is the finite transition system and prop_logic is the logical proposition Φ
         ST = self  # Assuming ST refers to the current instance of StateTransition
-        while self.b and ST:
-            s = ST.init_state  # On choisit arbitrairement un état initial
+        while self.b and ST.I not in self.R:
+            s = ST.I  # On choisit arbitrairement un état initial
             if s not in self.R:
                 self.visiter(s)
 
@@ -76,11 +76,9 @@ class StateTransition:
             self.U.insert(0,s_prime)
             print("dans le while")
             if s_prime in self.R:
-                self.U.pop()
-                content_pile = self.U 
-                print(content_pile)
-                self.b = self.b and self.check_property(s_prime)
                 print("if")
+                self.U.pop()
+                self.b = self.b and self.check_property(s_prime)
             else:
                 print("else")
                 s_double_prime = None  # Choose a state from Post(s') that is not in R
@@ -105,13 +103,12 @@ class StateTransition:
             return True
         else:return False
 
-    def Post(self, s_prime, ST,s,R):
+    def Post(self,ST,s,R):
         print("post")
         post = ST.Transition[s.name]
-
-        # Placeholder for post function logic
-        # Needs to be implemented
-        return []
+        while post is not None:
+            if post.state in R:
+                post =post.nextNode
     
 
 def exemple1():
@@ -168,24 +165,14 @@ def exemple1():
     Phi = Or(Not(Unary({"c1"})),Not(Unary({"c2"})))
 
     calcul_inv = StateTransition(8,Act,Transitions,State1,Phi)
-    StateTransition.verification_invariant(calcul_inv)
+    result = StateTransition.verification_invariant(calcul_inv)
+    print(result)
 
 
 
 
 def main():
-    # ... [Rest of your main function code] ...
-
-    # You will need to define the Or, Not, and Unary functions or classes
-    # Phi = Or(Not(Unary({"c1"})), Not(Unary({"c2"})))
-
-    # ... [Rest of your main function code] ...
-
-    # Assuming Phi is defined and State1 is an instance of State
-    # calcul_inv = StateTransition(8, Act, Transitions, State1, Phi)
-    # result = StateTransition.verification_invariant(calcul_inv)
-    # print(result)
     exemple1()
 
 
-main()  # Uncomment to run the main function
+main()

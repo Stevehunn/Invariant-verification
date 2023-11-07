@@ -24,6 +24,7 @@ class TransitionList:
         self.transitions[state_from.get_name()].append(state_to)
 
     def display_transitions(self):
+        
         # Affiche les transitions
         for state_from, states_to in self.transitions.items():
             print(f"State {state_from}:")
@@ -115,8 +116,12 @@ def main():
     # State1.get_label()
 
     transitionList = TransitionList()
+    transition_list = TransitionList()
+
 
     # transistion State1
+    transition_list.add_transition(State1,State2)
+
     transitionList.add_transition(State1,State2)
     transitionList.add_transition(State1,State3)
 
@@ -147,7 +152,7 @@ def main():
     transitionList.add_transition(State8,State2)
 
     print("Tableau des transitions")
-    transitionList.display_transitions()
+    #transitionList.display_transitions()
 
     Prop ={"n1","n2","p1","p2","c1","c2"}
     I ={State1}
@@ -157,6 +162,7 @@ def main():
 
     ST = TransitionSystem(8,Action,transitionList,I,Phi)
 
-    verif_invariant(ST)
+    #verif_invariant(ST)
+    #transition_list.display_transitions()
 
 main()
